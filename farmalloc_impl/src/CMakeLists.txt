@@ -1,0 +1,1 @@
+target_sources(farmalloc_impl PRIVATE local_memory_store.cpp)

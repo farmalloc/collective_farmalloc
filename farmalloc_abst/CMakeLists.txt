@@ -1,0 +1,2 @@
+add_library(farmalloc_abst INTERFACE)
+target_include_directories(farmalloc_abst INTERFACE include/public)

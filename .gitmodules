@@ -1,0 +1,4 @@
+[submodule "umap"]
+	path = farmalloc_impl/umap
+	url = git@github.com:farmalloc/umap.git
+	branch = for_far_memory
