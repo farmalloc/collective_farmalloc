@@ -13,7 +13,6 @@
 #include <memory>
 #include <new>
 #include <optional>
-#include <ranges>
 #include <type_traits>
 #include <utility>
 
@@ -162,18 +161,6 @@ public:
     BTreeMap(const Alloc& alloc) : alloc(alloc) {}
     inline ~BTreeMap() noexcept;
 
-private:
-    struct TmpDataPerLevel {
-        // i-th node in this level has (min_n_elems + (i < n_plus_1_nodes))
-        size_t min_n_elems, n_plus_1_nodes;
-        size_t n_nodes, n_local_nodes = 0, node_cnt = 0;
-        NodePtr first = nullptr, last = nullptr;
-    };
-
-    template <std::ranges::random_access_range R>
-    inline constexpr BTreeMap(R&& range);
-
-public:
     iterator begin() noexcept { return iterator{{.node = begin_node, .elem_idx = 0}}; }
     const_iterator begin() const noexcept { return const_iterator{{.node = begin_node, .elem_idx = 0}}; }
     const_iterator cbegin() const noexcept { return begin(); }

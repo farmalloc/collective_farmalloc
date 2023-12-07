@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <bit>
 #include <cstddef>
-#include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -44,62 +43,6 @@ void BTreeMap<Key, T, MaxNElems, Compare, Allocator>::clear()
     size_cnt = 0;
     begin_node = header;
     last_local_node = header;
-}
-
-
-template <class Key, class T, size_t MaxNElems, class Compare, class Allocator>
-template <std::ranges::random_access_range R>
-constexpr BTreeMap<Key, T, MaxNElems, Compare, Allocator>::BTreeMap(R&& range)
-{
-    std::array<TmpDataPerLevel, std::numeric_limits<size_t>::digits> per_level;
-    size_cnt = static_cast<size_t>(std::ranges::size(range));
-
-    constexpr size_t DesiredNElems = (MinNElems + MaxNElems + 1) / 2;
-    size_t max_level = 0;
-    for (auto size = size_cnt;; max_level++) {
-        if (size <= MaxNElems) {
-            per_level[max_level].min_n_elems = size;
-            per_level[max_level].n_plus_1_nodes = 0;
-            per_level[max_level].n_nodes = 1;
-            break;
-        }
-        per_level[max_level].n_nodes = size / (DesiredNElems + 1) + 1;
-        const size_t n_elems = size - per_level[max_level].n_nodes + 1;
-        per_level[max_level].min_n_elems = n_elems / per_level[max_level].n_nodes;
-        per_level[max_level].n_plus_1_nodes = n_elems % per_level[max_level].n_nodes;
-        size = per_level[max_level].n_nodes - 1;
-        // n_nodes += per_level[max_level].n_nodes;
-    }
-    per_level[max_level + 1].n_nodes = 1;
-    per_level[max_level + 1].first = header;
-
-    auto local_suballoc = AllocTraits::get_suballocator(alloc, purely_local);
-    [&] {
-        for (size_t parent_level = max_level + 1; parent_level != 0; parent_level--) {
-            const size_t level = parent_level - 1;
-            size_t node_idx = 0;
-            NodePtr parent = per_level[parent_level].first, last = nullptr;
-            for (size_t parent_idx = 0; parent_idx < per_level[parent_level].n_nodes; parent_idx++, parent = parent->next) {
-                for (size_t child_idx = 0; child_idx <= parent->n_elems; child_idx++, node_idx++) {
-                    auto allocated = SuballocTraits::batch_allocate(local_suballoc, request::single<Node>());
-                    if (!allocated) {
-                        per_level[level].n_local_nodes = node_idx;
-                        return;
-                    }
-                    auto& [new_node] = *allocated;
-                    new (&(*new_node)) Node{.n_elems = per_level[level].min_n_elems + (node_idx < per_level[level].n_plus_1_nodes), .children = {}, .parent = parent, .prev = nullptr, .next = nullptr};
-                    if (node_idx == 0) {
-                        per_level[level].first = new_node;
-                    } else {
-                        last->next = new_node;
-                        new_node->prev = last;
-                    }
-                    parent->children[child_idx] = last = new_node;
-                }
-            }
-            per_level[level].n_local_nodes = node_idx;
-        }
-    }();
 }
 
 
