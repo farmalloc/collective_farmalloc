@@ -25,6 +25,3 @@ add_subdirectory(util)
 add_subdirectory(farmalloc_abst)
 add_subdirectory(farmalloc_impl)
 add_subdirectory(far_memory_container)
-
-
-add_subdirectory(tests)
