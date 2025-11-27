@@ -137,8 +137,6 @@ public:
     using level_type = typename Node::level_type;
 
     struct iterator : SkiplistIteratorBase<Node> {
-        using itertor_concept = std::bidirectional_iterator_tag;
-
     private:
         using Base = SkiplistIteratorBase<Node>;
         using NodePtr = typename Base::NodePtr;
@@ -170,8 +168,6 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
 
     struct const_iterator : SkiplistIteratorBase<Node> {
-        using itertor_concept = std::bidirectional_iterator_tag;
-
     private:
         using Base = SkiplistIteratorBase<Node>;
         using NodePtr = typename Base::NodePtr;

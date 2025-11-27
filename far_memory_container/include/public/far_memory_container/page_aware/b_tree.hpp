@@ -99,7 +99,6 @@ public:
     struct const_iterator : BTreeIterBase<Node> {
         using Base = BTreeIterBase<Node>;
 
-        using itertor_concept = std::bidirectional_iterator_tag;
         using difference_type = BTreeMap::difference_type;
         using value_type = typename Base::value_type;
 
@@ -117,7 +116,6 @@ public:
     struct iterator : BTreeIterBase<Node> {
         using Base = BTreeIterBase<Node>;
 
-        using itertor_concept = std::bidirectional_iterator_tag;
         using difference_type = BTreeMap::difference_type;
         using value_type = typename Base::value_type;
 
